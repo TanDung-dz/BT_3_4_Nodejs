@@ -147,4 +147,34 @@ router.delete('/:id', async function(req, res, next) {
     });
   }
 });
+
+// Hiển thị tất cả sản phẩm trong category theo slug
+router.get('/slug/:category', async function(req, res, next) {
+    try {
+        const categorySlug = req.params.category;
+        const category = await CategoryModel.findOne({ slug: categorySlug });
+        if (!category) {
+            return res.status(404).send({ success: false, message: "Category not found" });
+        }
+        const products = await productModel.find({ category: category._id });
+        res.status(200).send({ success: true, data: products });
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
+// Hiển thị sản phẩm cụ thể theo slug
+router.get('/slug/:category/:product', async function(req, res, next) {
+    try {
+        const productSlug = req.params.product;
+        const product = await productModel.findOne({ slug: productSlug }).populate("category");
+        if (!product) {
+            return res.status(404).send({ success: false, message: "Product not found" });
+        }
+        res.status(200).send({ success: true, data: product });
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
